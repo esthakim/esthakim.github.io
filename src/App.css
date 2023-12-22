@@ -1,0 +1,23 @@
+/* src/styles/index.css */
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+*,
+html,
+body {
+  font-family: "Manjari", sans-serif;
+  scroll-behavior: smooth;
+}
+
+@layer components {
+  .navbar-active .hamburger div:first-child {
+    @apply rotate-45 translate-y-1.5;
+  }
+  .navbar-active .hamburger div:last-child {
+    @apply -rotate-45 -translate-y-1;
+  }
+  .navbar-active div:first-child div:first-child div:last-child {
+    @apply block lg:flex;
+  }
+}

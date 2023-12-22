@@ -4,6 +4,7 @@ import emailjs from "emailjs-com";
 
 const Contact = () => {
   const [isVisible, setIsVisible] = useState(false);
+  const [status, setStatus] = useState({ type: "", message: "" });
 
   useEffect(() => {
     const handleScroll = () => {
@@ -22,8 +23,10 @@ const Contact = () => {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
 
-  const sendEmail = (e) => {
+  const sendEmail = async (e) => {
     e.preventDefault();
+
+    setStatus({ type: "sending", message: "Sending.." });
 
     const serviceID = import.meta.env.VITE_EMAILJS_SERVICEID;
     const templateID = import.meta.env.VITE_EMAILJS_TEMPLATEID;
@@ -36,17 +39,29 @@ const Contact = () => {
       message: message,
     };
 
-    emailjs
-      .send(serviceID, templateID, formData, pubKey)
-      .then((response) => {
-        console.log("Email sent successfully:", response);
-        setName("");
-        setEmail("");
-        setMessage("");
-      })
-      .catch((error) => {
-        console.error("Error sending email:", error);
+    try {
+      const response = await emailjs.send(
+        serviceID,
+        templateID,
+        formData,
+        pubKey
+      );
+      console.log("Email sent successfully: ", response);
+      setName("");
+      setEmail("");
+      setMessage("");
+      setStatus({ type: "success", message: "Email sent successfully" });
+
+      setTimeout(() => {
+        setStatus({ type: "", message: "" });
+      }, 3000);
+    } catch (error) {
+      console.log("Error sending email: ", error);
+      setStatus({
+        type: "error",
+        message: "Failed to send email. Something went wrong.",
       });
+    }
   };
 
   return (
@@ -269,9 +284,19 @@ const Contact = () => {
                   data-ripple-light="true"
                   type="submit"
                   className="block mx-auto w-80 select-none rounded-full bg-gradient-to-t from-highlight to-secondary py-3 px-6 text-center align-middle font-sans text-xs font-bold uppercase text-white shadow-md shadow-cyan-500/20 transition-all hover:shadow-lg hover:shadow-cyan-500/40 active:opacity-[0.85] disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+                  disabled={status.type === "sending"}
                 >
-                  SHOOT
+                  {status.type === "sending"
+                    ? "Sending.."
+                    : status.type === "success"
+                    ? "Email sent!"
+                    : "SHOOT"}
                 </button>
+                {status.type === "error" && (
+                  <p className="pt-3 text-red-600 text-center">
+                    {status.message}
+                  </p>
+                )}
               </div>
               <div className="p-3 text-center">
                 <p className="text-sm text-gray-400">
